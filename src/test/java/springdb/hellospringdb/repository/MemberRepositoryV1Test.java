@@ -1,18 +1,15 @@
 package springdb.hellospringdb.repository;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import springdb.hellospringdb.domain.Member;
 
-import javax.sql.DataSource;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static springdb.hellospringdb.connection.ConnectionConst.*;
 
 class MemberRepositoryV1Test {

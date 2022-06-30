@@ -1,0 +1,13 @@
+package springdb.hellospringdb.exception.basic;
+
+public class MyUncheckedException extends RuntimeException {
+
+    public MyUncheckedException(String message) {
+        super(message);
+    }
+
+    public MyUncheckedException(Throwable cause) {
+        super(cause);
+    }
+
+}
