@@ -1,11 +1,12 @@
 package springdb.hellospringdb.repository;
 
-
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 import springdb.hellospringdb.domain.Member;
+import springdb.hellospringdb.repository.ex.MyDbException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,14 +15,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
+
 @Slf4j
 //@Repository
-@RequiredArgsConstructor
-public class MemberRepositoryV3 {
+public class MemberRepositoryV4_2 implements MemberRepository {
 
     private final DataSource dataSource;
+    private final SQLExceptionTranslator exTranslator;
 
-    public Member save(Member member) throws SQLException {
+    public MemberRepositoryV4_2(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.exTranslator = new SQLErrorCodeSQLExceptionTranslator(dataSource);
+    }
+
+    @Override
+    public Member save(Member member) {
 
         String sql = "insert into member(member_id, money) values(?, ?)";
 
@@ -38,14 +46,15 @@ public class MemberRepositoryV3 {
         }
         catch (SQLException e) {
             log.error("db error", e);
-            throw e;
+            throw exTranslator.translate("save 예외", sql, e);
         }
         finally {
             close(conn, pstmt, null);
         }
     }
 
-    public Member findById(String memberId) throws SQLException {
+    @Override
+    public Member findById(String memberId) {
 
         String sql = "select * from member where member_id = ?";
 
@@ -73,7 +82,7 @@ public class MemberRepositoryV3 {
 
         catch (SQLException e) {
             log.error("db error", e);
-            throw e;
+            throw new MyDbException(e);
         }
 
         finally {
@@ -81,7 +90,8 @@ public class MemberRepositoryV3 {
         }
     }
 
-    public void update(String memberId, int money) throws SQLException {
+    @Override
+    public void update(String memberId, int money) {
 
         String sql = "update member set money=? where member_id=?";
 
@@ -97,14 +107,15 @@ public class MemberRepositoryV3 {
         }
         catch (SQLException e) {
             log.error("db error", e);
-            throw e;
+            throw exTranslator.translate("update 예외", sql, e);
         }
         finally {
             close(conn, pstmt, null);
         }
     }
 
-    public void delete(String memberId) throws SQLException {
+    @Override
+    public void delete(String memberId) {
 
         String sql = "delete from member where member_id=?";
 
@@ -119,14 +130,14 @@ public class MemberRepositoryV3 {
         }
         catch (SQLException e) {
             log.error("db error", e);
-            throw e;
+            throw exTranslator.translate("delete 예외", sql, e);
         }
         finally {
             close(conn, pstmt, null);
         }
     }
 
-    private Connection getConnection() throws SQLException {
+    private Connection getConnection() {
         // 동기화 매니저에서 커넥션(트랜잭션)을 획득
         // 서비스 계층에서 트랜잭션 매니저를 통해 트랜잭션 동기화 매니저에 트랜잭션을 보관하면
         // 이를 DataSourceUtils.getConnection()으로 획득할 수 있다.

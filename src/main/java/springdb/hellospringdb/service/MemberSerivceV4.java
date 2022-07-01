@@ -4,23 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import springdb.hellospringdb.domain.Member;
-import springdb.hellospringdb.repository.MemberRepositoryV3;
-
-import java.sql.SQLException;
+import springdb.hellospringdb.repository.MemberRepository;
 
 @Slf4j
-//@Service
 @RequiredArgsConstructor
-public class MemberServiceV3_3 {
+public class MemberSerivceV4 {
 
-    private final MemberRepositoryV3 memberRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
-    public void accountTransfer(String fromId, String toId, int money) throws SQLException {
+    public void accountTransfer(String fromId, String toId, int money) {
         bizLogic(fromId, toId, money);
     }
 
-    private void bizLogic(String fromId, String toId, int money) throws SQLException {
+    private void bizLogic(String fromId, String toId, int money) {
         Member fromMember = memberRepository.findById(fromId);
         Member toMember = memberRepository.findById(toId);
 

@@ -2,7 +2,6 @@ package springdb.hellospringdb.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import springdb.hellospringdb.domain.Member;
@@ -11,7 +10,7 @@ import springdb.hellospringdb.repository.MemberRepositoryV3;
 import java.sql.SQLException;
 
 @Slf4j
-@Service
+//@Service
 @RequiredArgsConstructor
 public class MemberServiceV3_2 {
 

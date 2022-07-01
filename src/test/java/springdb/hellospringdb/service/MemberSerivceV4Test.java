@@ -1,5 +1,6 @@
 package springdb.hellospringdb.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,27 +9,32 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import springdb.hellospringdb.domain.Member;
-import springdb.hellospringdb.repository.MemberRepositoryV3;
+import springdb.hellospringdb.repository.MemberRepository;
+import springdb.hellospringdb.repository.MemberRepositoryV4_2;
 
-import java.sql.SQLException;
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@Slf4j
 @SpringBootTest
-class MemberServiceV3_3Test {
+class MemberSerivceV4Test {
+
     public static final String MEMBER_A = "memberA";
     public static final String MEMBER_B = "memberB";
     public static final String MEMBER_EX = "ex";
 
     @Autowired
-    private MemberServiceV3_3 memberService;
+    private MemberSerivceV4 memberService;
     @Autowired
-    private MemberRepositoryV3 memberRepository;
+    private MemberRepository memberRepository;
+
 
     @AfterEach
-    void afterEach() throws SQLException {
+    void afterEach() {
         memberRepository.delete(MEMBER_A);
         memberRepository.delete(MEMBER_B);
         memberRepository.delete(MEMBER_EX);
@@ -40,41 +46,32 @@ class MemberServiceV3_3Test {
         System.out.println("memberRepository = " + memberRepository.getClass());
 
         Assertions.assertThat(AopUtils.isAopProxy(memberService)).isTrue();
-        Assertions.assertThat(AopUtils.isAopProxy(memberRepository)).isTrue();
+        Assertions.assertThat(AopUtils.isAopProxy(memberRepository)).isFalse();
     }
 
     @TestConfiguration
     static class TestConfig {
-//        @Bean
-//        DataSource dataSource() {
-//            return new DriverManagerDataSource(URL, USERNAME, PASSWORD);
-//        }
-//
-//        @Bean
-//        PlatformTransactionManager transactionManager() {
-//            return new DataSourceTransactionManager(dataSource());
-//        }
 
-//        private final DataSource dataSource;
-//
-//        public TestConfig(DataSource dataSource) {
-//            this.dataSource = dataSource;
-//        }
+        private final DataSource dataSource;
 
-//        @Bean
-//        MemberRepositoryV3 memberRepositoryV3() {
-//            return new MemberRepositoryV3(dataSource);
-//        }
+        public TestConfig(DataSource dataSource) {
+            this.dataSource = dataSource;
+        }
 
-//        @Bean
-//        MemberServiceV3_3 memberServiceV3_3() {
-//            return new MemberServiceV3_3(memberRepositoryV3());
-//        }
+        @Bean
+        MemberRepository memberRepository() {
+            return new MemberRepositoryV4_2(dataSource);
+        }
+
+        @Bean
+        MemberSerivceV4 memberSerivceV4() {
+            return new MemberSerivceV4(memberRepository());
+        }
     }
 
     @Test
     @DisplayName("정상 이체")
-    void accountTransfer() throws SQLException {
+    void accountTransfer() {
         // given
         Member memberA = new Member(MEMBER_A, 10000);
         Member memberB = new Member(MEMBER_B, 10000);
@@ -94,7 +91,7 @@ class MemberServiceV3_3Test {
 
     @Test
     @DisplayName("이체 중 예외 발생")
-    void accountTransferEx() throws SQLException {
+    void accountTransferEx() {
         // given
         Member memberA = new Member(MEMBER_A, 10000);
         Member memberB = new Member(MEMBER_EX, 10000);

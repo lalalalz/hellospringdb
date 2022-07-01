@@ -32,8 +32,10 @@ static class Service {
         try {
             repository.call();
         }
-        catch(Exception e) {
+        catch(MyUncheckedException e) {
+            SQLException ex = (SQLException) e.getCause();
             log.info("예외 처리, message={}", e.getMessage(), e);
+            log.info("SQLException 에러 코드 확인하기 = {}", ex.getErrorCode());
         }
     }
 
@@ -46,7 +48,7 @@ static class Service {
 static class Repository {
 
     public void throwCheckedException() throws SQLException {
-        throw new SQLException("테스트 입니다.");
+        throw new SQLException("테스트 입니다.", "hello", 1234);
     }
 
     public void call() {
@@ -56,7 +58,7 @@ static class Repository {
         }
 
         catch (SQLException e) {
-            throw new MyUncheckedException("기존 예외 불포함");
+            throw new MyUncheckedException(e);
         }
     }
 }
